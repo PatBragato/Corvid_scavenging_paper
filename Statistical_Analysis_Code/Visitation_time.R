@@ -73,6 +73,8 @@ visit_model_sel <- model.sel(visit_1, visit_2, visit_3,
 as.data.frame(visit_model_sel) 
 
 # Looking into best model (Visit_4) ----
+summary(visit_4)
+
 # Residauals
 visit_mu <- predict(visit_4, type = "response") # Predicted values
 visit_resids <- visitation_time$visit_time - visit_mu # Residuals

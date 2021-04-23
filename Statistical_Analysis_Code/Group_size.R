@@ -73,6 +73,8 @@ group_mod_sel <- model.sel(group_mod1, group_mod2, group_mod3, group_mod4, group
 as.data.frame(group_mod_sel)
 
 # Looking into best model (Model 4) ----
+summary(group_mod4)
+
 # Residauals
 group_resids <- resid(group_mod4, type = "pearson")
 group_mu <- predict(group_mod4, type = "response") 

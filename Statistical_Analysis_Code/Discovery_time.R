@@ -97,6 +97,8 @@ as.data.frame(discovery_mod_sel)
 
 
 # Looking into best model (Model 1) ----
+summary(mod1)
+
 # Residauals
 arrive_mu <- predict(mod1, type = "response") # Predicted values
 arrive_resids <- arrival_time_corvids$arrival_time_mins - arrive_mu # Residuals
