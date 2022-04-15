@@ -1,7 +1,7 @@
 # Analysis for corvid group size at carcasses
 # Patrick Bragato
 # patbragato@gmail.com
-# 1st April 2021
+# 1st April 2022
 
 # Libraries ----
 library(ggplot2)
@@ -36,13 +36,24 @@ group_size$group_size <-  as.numeric(group_size$group_size)
 
 group_size$carcass_drop <- as.factor(group_size$carcass_drop)
 
+# Graphs ----
 # Making a histogram
 (group_hist <- ggplot(group_size, aes(x = group_size)) + 
      geom_histogram(binwidth = 1, colour = "#000000", fill = "#8497B0") + # Changing colour and bin width
      geom_vline(aes(xintercept = mean(group_size)), colour = "red", linetype = "dashed", size = 1) +
      xlab("\nGroup Size") +
      ylab("Count\n") +
-     theme_hist())    
+     theme_hist())  
+
+# Boxplot
+(group_box <- ggplot(group_size, aes(x = Flood, y = group_size, fill = Season)) + 
+        geom_boxplot(alpha = .75, outlier.colour = "black") +
+        scale_fill_manual(values = c("#8497B0", "#D66700")) +             # Adding custom colours
+        ylab("Group Size\n") +                             
+        xlab("\nHabitat")  +
+        theme_box() +               # Adding a margin
+        stat_summary(fun = mean, shape = 7, colour = "red", position = position_dodge(0.75),
+                     aes(group = Season)))
 
 # Modelling the data ----
 group_mod1 <- glmer(group_size ~ Habitat + Flood + Season + (1|site_R), data = group_size, 
@@ -95,12 +106,4 @@ contrast(group_emm, "consec", simple = "each", combine = TRUE)
 contrast(group_emm, "consec", simple = "each", combine = TRUE, type = "response")
 
 
-# Boxplot
-(group_box <- ggplot(group_size, aes(x = Flood, y = group_size, fill = Season)) + 
-    geom_boxplot(alpha = .75, outlier.colour = "black") +
-    scale_fill_manual(values = c("#8497B0", "#D66700")) +             # Adding custom colours
-    ylab("Group Size\n") +                             
-    xlab("\nHabitat")  +
-    theme_box() +               # Adding a margin
-    stat_summary(fun = mean, shape = 7, colour = "red", position = position_dodge(0.75),
-                 aes(group = Season)))
+

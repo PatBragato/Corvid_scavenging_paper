@@ -1,7 +1,7 @@
 # Anaylsis of the Discovery Time of Carcasses by Corvids
 # Patrick Bragato
 # patbragato@gmail.com
-# 1st April 2021
+# 1st April 2022
 
 # Libraries ----
 library(ggplot2)
@@ -45,8 +45,8 @@ arrival_time_corvids$arrival_time_mins <-  as.numeric(arrival_time_corvids$arriv
 ## Boxplot 
 (arrival_box <- ggplot(arrival_time_corvids, aes(x = Season, y = arrival_time_mins, fill = Habitat)) + 
     geom_boxplot(alpha = 0.75, outlier.colour = "black", width = 0.75) +
-    scale_fill_manual(values = c("#8497B0", "#D66700")) +             # Adding custom colours
-    scale_y_continuous(labels = comma) +
+    scale_fill_manual(values = c("#009E73", "#D55E00")) +             # Adding custom colours
+    scale_y_continuous(labels = comma, limits = c(0, 20000)) +
     ylab("Time until discovery (minutes)\n") +
     theme_box() +      
     stat_summary(fun = mean, shape = 7, colour = "red", position = position_dodge(0.75),
@@ -55,7 +55,6 @@ arrival_time_corvids$arrival_time_mins <-  as.numeric(arrival_time_corvids$arriv
 
 
 # Modelling ----
-# Global model
 x.quasipoisson <- function(...) {
   res <- quasipoisson(...)
   res$aic <- poisson(...)$aic
@@ -88,7 +87,7 @@ mod9 <- glm(arrival_time_mins ~ Season, data = arrival_time_corvids,
 mod10 <- glm(arrival_time_mins ~ Flood, data = arrival_time_corvids, 
             family = x.quasipoisson)
 
-chat <-sum(residuals(arrival_global_model,"pearson")^2)/arrival_global_model$df.residual # Calculating dispersion parameter
+chat <-sum(residuals(arrival_global_model,"pearson")^2)/arrival_global_model$df.residual # Calculating dispersion parameter from global model
 
 discovery_mod_sel <- model.sel(mod1, mod2, mod3, mod4, mod5, mod6,mod7, mod8,mod9, mod10,
                       rank = QAICc, rank.args = alist(chat = chat)) #  Ranking models by QAICc, using dispersion parameter from global model
@@ -113,5 +112,3 @@ arrive_resid_data <- data.frame(arrive_mu, arrive_pearson)
     xlab("\nPredicted Values") +
     ylab("Scaled Pearson Residuals\n"))
 
-arrival_emm <- emmeans(mod1, ~ Habitat*Season*Flood)
-contrast(aic_arrival_emm, "consec", simple = "each", combine = TRUE, type = "response")

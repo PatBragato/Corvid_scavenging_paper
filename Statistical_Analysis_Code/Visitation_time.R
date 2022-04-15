@@ -1,7 +1,7 @@
 # Analysis of visitation time of corivds at carcasses
 # Patrick Bragato
 # patbragato@gmail.com
-# 1st April 2021
+# 1st April 2022
 
 # Libraries ----
 library(ggplot2)
@@ -31,6 +31,26 @@ visitation_time$Habitat <- factor(visitation_time$Habitat,c("Closed", "Open"))
 visitation_time$Site <- as.factor(visitation_time$Site) # May need to rename sites for each drop
 
 visitation_time$carcass_drop <- as.factor(visitation_time$carcass_drop)
+# Graphs ----
+## Histogram
+(visit_hist <- ggplot(visitation_time, aes(x = visit_time)) + 
+   geom_histogram(binwidth = 60, colour = "#000000", fill = "#8497B0") + 
+   geom_vline(aes(xintercept = mean(visit_time)), colour = "red", linetype = "dashed", size = 1) +
+   xlab("\nVisitation time (minutes)") +
+   ylab("Count\n") +
+   theme_hist() +
+   scale_x_continuous(labels = comma))
+
+## Boxplot 
+(visitation_box_habitat <- ggplot(visitation_time, aes(x = Flood, y = visit_time, fill = Season)) +
+   geom_boxplot(alpha = 0.75, outlier.colour = "black") +
+   scale_fill_manual(values = c("#8497B0", "#D66700")) +             # Adding custom colours
+   ylab("Visitation time (minutes)\n") +                             
+   xlab("\nHabitat")  +
+   theme_box() +     
+   stat_summary(fun = mean, shape = 7, colour = "red", position = position_dodge(0.75),
+                aes(group = Season))
+)
 
 # Modelling ----
 x.quasipoisson <- function(...) {
@@ -63,6 +83,7 @@ visit_9 <- glm(visit_time ~ Season, data = visitation_time, family = x.quasipois
 
 visit_10 <- glm(visit_time ~ Flood, data = visitation_time, family = x.quasipoisson)
 
+
 visit_chat<-sum(residuals(visit_global_model,"pearson")^2)/visit_global_model$df.residual
 
 visit_model_sel <- model.sel(visit_1, visit_2, visit_3, 
@@ -89,8 +110,6 @@ visit_resid_data <- data.frame(visit_mu, visit_pearson)
     xlab("\nPredicted Values") +
     ylab("Scaled Pearson Residuals\n"))
 
-emmip(visit_11, Season ~ Flood)
-
 
 # EM Means
 visit_emm <- emmeans(visit_4, ~ Season*Flood)
@@ -99,14 +118,4 @@ contrast(visit_emm, "consec", simple = "each", combine = TRUE)
 contrast(visit_emm, "consec", simple = "each", combine = TRUE, type = "response")
 
 
-## Boxplot ----  
-(visitation_box_habitat <- ggplot(visitation_time, aes(x = Flood, y = visit_time, fill = Season)) +
-   geom_boxplot(alpha = 0.75, outlier.colour = "black") +
-   scale_fill_manual(values = c("#8497B0", "#D66700")) +             # Adding custom colours
-   ylab("Visitation time (minutes)\n") +                             
-   xlab("\nHabitat")  +
-    theme_box() +     
-   stat_summary(fun = mean, shape = 7, colour = "red", position = position_dodge(0.75),
-                aes(group = Season))
-)
 
